@@ -1,9 +1,12 @@
 package com.productCriteria.Controller;
 
 
+import com.productCriteria.Dtos.PaginationDto;
+import com.productCriteria.Dtos.PaginationResponse;
 import com.productCriteria.Entity.Product;
 import com.productCriteria.Service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,9 +21,24 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/products")
-    public ResponseEntity<List<Product>> all(){
-        return new ResponseEntity<>(productService.all(), HttpStatus.OK);
+    @PostMapping("/products")
+    public ResponseEntity<Page<Product>> all(@ModelAttribute PaginationDto paginationDto){
+        return new ResponseEntity<>(productService.all(paginationDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/products/v2")
+    public ResponseEntity<PaginationResponse> allProducts(@ModelAttribute PaginationDto paginationDto){
+        return new ResponseEntity<>(productService.allProducts(paginationDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/products/category-price")
+    public ResponseEntity<PaginationResponse> allProductsWithCategoryAndPrice(
+            @ModelAttribute PaginationDto paginationDto,
+            @RequestParam String category,
+            @RequestParam double min,
+            @RequestParam double max){
+        System.out.println("category "+category +"min "+ min +"max "+ max);
+        return new ResponseEntity<>(productService.findProductsWithCategoryAndPrice(paginationDto, category, min, max), HttpStatus.OK);
     }
 
     @GetMapping("/productById/{id}")

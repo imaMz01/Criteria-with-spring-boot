@@ -1,5 +1,7 @@
 package com.productCriteria.Service;
 
+import com.productCriteria.Dtos.PaginationDto;
+import com.productCriteria.Dtos.PaginationResponse;
 import com.productCriteria.Entity.Product;
 import com.productCriteria.Exception.ProductNotFound;
 import com.productCriteria.Repository.ProductRepository;
@@ -8,6 +10,9 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,8 +32,23 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public List<Product> all() {
-        return productRepository.findAll();
+    public Page<Product> all(PaginationDto paginationDto) {
+        Pageable page = PageRequest.of(paginationDto.getPage(), paginationDto.getSize());
+        return productRepository.findAll(page);
+    }
+
+    @Override
+    public PaginationResponse allProducts(PaginationDto paginationDto) {
+        Pageable page = PageRequest.of(paginationDto.getPage(), paginationDto.getSize());
+        Page<Product> products = productRepository.findAll(page);
+        return PaginationResponse.get(products,products.getContent());
+    }
+
+    @Override
+    public PaginationResponse findProductsWithCategoryAndPrice(PaginationDto paginationDto, String category, double min, double max) {
+        Pageable page = PageRequest.of(paginationDto.getPage(), paginationDto.getSize());
+        Page<Product> products = productRepository.findProductsWithCategoryAndPrice(page, category, min, max);
+        return PaginationResponse.get(products,products.getContent());
     }
 
     @Override
